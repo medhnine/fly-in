@@ -203,18 +203,20 @@ class Parse:
         return zones
 
 def main():
-    try:
-        obj = Parse('/home/mohhnine/Desktop/fly-in/maps/easy/01_linear_path.txt')
+    # try:
+        obj = Parse('/home/mohhnine/Desktop/fly-in/maps/easy/02_simple_fork.txt')
         graph = Graph(2)
         zones = obj.parse(graph)
         dic: dict = {}
-        for zone in zones:
-            dic[zone.name] = zone
-            print(f"zone {zone.name} nieghbors {[x.name for x in zone.neighbors]}:")
-            # for z in zone.neighbors:
-            #     print(z.name)
-            print("------")
-        print(dic)
-    except Exception as e:
-        print(f"opps {e}")
+        res = graph.find_path()
+        print(res)
+        # for zone in zones:
+        #     dic[zone.name] = zone
+        #     print(f"zone {zone.name} nieghbors {[x.name for x in zone.neighbors]}:")
+        #     for z in zone.neighbors:
+        #         print(z.name)
+        #     print("------")
+        # print(dic)
+    # except Exception as e:
+    #     print(f"opps {e}")
 main()

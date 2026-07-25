@@ -37,7 +37,6 @@ class Parse:
                         if info["zone_type"]:
                             raise ValueError("duplicated zone in meta data")
                         info["zone_type"] = res[1]
-                        print(f"{res[0]} = {info["zone_type"]}")
                     else:
                         raise ValueError("unvlaid meta data for zone type")
                 elif res[0] == "max_drones":
@@ -45,14 +44,12 @@ class Parse:
                         if info["max_drones"] is not None:
                             raise ValueError("duplicated max_drones in meta data")
                         info["max_drones"] = int(res[1])
-                        print(f"{res[0]} = {info["max_drones"]}")
                     except ValueError:
                         raise ValueError("unvlaid meta data max_drones")
                 elif res[0] == "color":
                     if info["color"] is not None:
                             raise ValueError("duplicated color in meta data")
                     info["color"] = res[1]
-                    print(f"{res[0]} = {info["color"]}\n")
             else:
                 raise ValueError("unvlaid meta data")
         return True
@@ -87,14 +84,12 @@ class Parse:
             raise ValueError("duplicated zone name")
         self.zones_name.append(values[0])
         info["name"] = values[0]
-        print(f"zone name: {values[0]}")
 
         try:
             x = int(values[1])
             y = int(values[2])
             info["x"] = x
             info["y"] = y
-            print(f"x, y = {x} {y}")
         except ValueError:
             raise ValueError("x, y cordinate not valid")
         if len(values) > 3:
@@ -141,7 +136,6 @@ class Parse:
             if len(meta) == 2:
                 if '[' in meta[1]:
                     self.connection_meta(meta[1])
-            print(f"connection {zones[0]} to {zones[1].split(' ', 1)[0]}")
 
     def connection_meta(self, meta_d):
         data = meta_d[1:len(meta_d) - 1]
@@ -153,7 +147,6 @@ class Parse:
         value = int(result[1])
         if value <= 0:
             raise ValueError("unvlaid max_link_capacity number for connection")
-        print(f"max-link-capasity = {value}\n")
 
     def parse(self, graph):
         zones = []
@@ -194,17 +187,20 @@ class Parse:
         return zones
 
 def main():
-    # try:
+    try:
         obj = Parse('/home/mohhnine/Desktop/fly-in/maps/easy/01_linear_path.txt')
         graph = Graph(2)
         zones = obj.parse(graph)
+        print(f"zones obj: {zones}")
         dic = {}
         for zone in zones:
+            print(f"zones neighbors :{zone.neighbors}")
+            print(zone.name)
             dic[zone.name] = zone
         print(dic)
-        meta_d = "[color]"
+        # meta_d = "[color]"
         # data = meta_d[1:len(meta_d) - 1]
         # print(data)
-    # except Exception as e:
-    #     print(f"opps {e}")
+    except Exception as e:
+        print(f"opps {e}")
 main()
