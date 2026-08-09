@@ -7,12 +7,14 @@ class Zone:
         self.zone_type = zone_type
         self.max_drones = max_drones
         self.neighbors = []
+        self.drones_in = 0
 
     @property
     def cost(self) -> int:
         if self.zone_type == "restricted":
             return 2
         return 1
+
     def set_default(self):
         if self.color is None:
             self.color = "yellow"
@@ -20,6 +22,33 @@ class Zone:
             self.max_drones = 1
         if self.zone_type is None:
             self.zone_type = "normal"
+    
+    def has_plsce(self):
+        if self.drones_in < self.max_drones:
+            return True
+        return False
+
+class Drone:
+    def __init__(self, id, path):
+        self.id = id
+        self.path = path
+        self.step = 0
+
+    @property
+    def arrived(self):
+        if self.step == len(self.path) - 1:
+            return True
+        return False
+
+    @property
+    def current_zone(self):
+        return self.path[self.step]
+
+    @property
+    def next_zone(self):
+        if self.arrived:
+            return None
+        return self.path[self.step + 1]
 
 class Graph:
     def __init__(self, nb_drones: int):
@@ -27,6 +56,7 @@ class Graph:
         self.zones : dict[str, Zone] = {}
         self.start: Zone | None = None
         self.end: Zone | None = None
+
 
     def add_zone(self, zone):
         if zone.name in self.zones:
@@ -42,7 +72,31 @@ class Graph:
         zone2 = self.zones[name2]
         zone1.neighbors.append(zone2)
         zone2.neighbors.append(zone1)
-    def find_path(self):
+    
+    def assign_paths(self, paths):
+        drones : list["Drone"] = []
+        store = {}
+        id = 1
+        for index, path in enumerate(paths):
+            store[index] = [len(path) - 1, 0]
+        while(id <= self.nb_drones):
+            samll = float("inf")
+            chosen = 0
+            for key, value in store.items():
+                if samll > value[0] + value[1]:
+                    print(f"value[0] + value[1] = {value[0]} + {value[1]}")
+                    samll = value[0] + value[1]
+                    print(f"smal = {samll}")
+                    chosen = key
+                    print(f"chosen key = {key}")
+            drone = Drone(id, paths[chosen])
+            store[chosen][1] += 1
+            drones.append(drone)
+            id += 1
+        print(store)
+        return drones
+
+    def find_path(self, blocked : set["Zone"] | None):
         if self.start is None or self.end is None:
             raise ValueError("start or end missing")
         dist: dict["Zone", float] = {}
@@ -56,26 +110,26 @@ class Graph:
             lowest = float("inf")
             current = None
             for cheap in self.zones.values():
-                if cheap not in visited and dist[cheap] < lowest:
+                if cheap not in visited and cheap not in blocked and dist[cheap] < lowest:
                     lowest = dist[cheap]
                     current = cheap
-            if current == self.end:
+            if current is None:
+                return None
+            if current is self.end:
                 path = []
                 while current is not None:
-                    print(current.name)
-                    path.append(current.name)
+                    path.append(current)
                     current = parent[current]
                 return path[::-1]
-            elif current is None:
-                return None
             neighbors = current.neighbors
             visited.add(current)
             for n in neighbors:
-                if n not in visited:
+                if n not in visited and n not in blocked:
                     new_cost = dist[current] + n.cost
                     if new_cost < dist[n]:
                         dist[n] = new_cost
                         parent[n] = current
+
 
 
 
@@ -140,7 +194,7 @@ class Graph:
 
 def main():
     from parsing import Parse
-    obj = Parse('/home/mohhnine/Desktop/fly-in/maps/easy/02_simple_fork.txt')
+    obj = Parse('/home/mohhnine/Desktop/fly-in/maps/medium/01_dead_end_trap.txt')
     graph = Graph(2)
     zones = obj.parse(graph)
     s = "#  start_hub: start 0 0 [color=green]"
