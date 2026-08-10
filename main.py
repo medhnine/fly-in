@@ -1,5 +1,5 @@
 class Zone:
-    def __init__(self, name: str, x: int, y: int, color: str, zone_type: str, max_drones: int):
+    def __init__(self, name: str, x: int, y: int, color: str, zone_type: str, max_drones: int | float):
         self.name = name
         self.x = x
         self.y = y
@@ -57,7 +57,6 @@ class Graph:
         self.start: Zone | None = None
         self.end: Zone | None = None
 
-
     def add_zone(self, zone):
         if zone.name in self.zones:
             raise ValueError("duplicated zone name")
@@ -80,15 +79,12 @@ class Graph:
         for index, path in enumerate(paths):
             store[index] = [len(path) - 1, 0]
         while(id <= self.nb_drones):
-            samll = float("inf")
+            small = float("inf")
             chosen = 0
             for key, value in store.items():
-                if samll > value[0] + value[1]:
-                    print(f"value[0] + value[1] = {value[0]} + {value[1]}")
-                    samll = value[0] + value[1]
-                    print(f"smal = {samll}")
+                if small > value[0] + value[1]:
+                    small = value[0] + value[1]
                     chosen = key
-                    print(f"chosen key = {key}")
             drone = Drone(id, paths[chosen])
             store[chosen][1] += 1
             drones.append(drone)

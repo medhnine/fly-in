@@ -223,7 +223,12 @@ def main():
             # blocked = {zone for zone in block if zone}
             # print(blocked)
             # blocked.add(block)
-        graph.assign_paths(paths)
+        drones = graph.assign_paths(paths)
+        for dr in drones:
+            print()
+            for i in dr.path:
+                print(f"dr id = {dr.id}, zone name: {i.name}")
+            print("next path:")
         # for path in paths:
         #     for zone in path:
         #         print(f" zone: {zone.name}")
