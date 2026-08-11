@@ -200,29 +200,36 @@ class Parse:
                 raise ValueError("unvalid data line")
         if not start_hub or not end_hub:
             raise ValueError("start_hub or end_hub are not present")
+        for i in zones:
+            print(f"zones {i.name}")
         return zones
 
 def main():
     try:
-        obj = Parse('/home/mohhnine/Desktop/fly-in/maps/easy/test.txt')
+        obj = Parse('/workspaces/fly-in/maps/easy/03_basic_capacity.txt')
         graph = Graph(2)
         zones = obj.parse(graph)
+        graph.start.max_drones = float("inf")
+        graph.end.max_drones = float("inf")
+
         dic: dict = {}
         res = []
         blocked: set["Zone"] = set()
         paths = []
-
+        count = 0
         while res is not None:
             res = graph.find_path(blocked)
-            if res is None:
+            if res is None or count == 2:
                 break
             paths.append(res.copy())
             block = res[1:-1]
             for zone in block:
                 blocked.add(zone)
+            count += 1
             # blocked = {zone for zone in block if zone}
             # print(blocked)
             # blocked.add(block)
+        print(len(paths))
         drones = graph.assign_paths(paths)
         for dr in drones:
             print()
